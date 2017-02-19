@@ -4,7 +4,7 @@ set -eo pipefail
 # Fuzzy matches namespace names in the current context for fast namespace switching
 # E.g. if "my-hackdays-app-3949-production" is the only app with "hackdays" in the current context,
 # `chns hackdays` will switch to it
-# Author: Katrina Verey (github.com/Knverey)
+# Author: Katrina Verey (github.com/KnVerey)
 
 if [ $1 ]; then
   NAMESPACE=$1
