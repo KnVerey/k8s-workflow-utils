@@ -1,0 +1,30 @@
+#!/bin/bash
+set -eo pipefail
+
+# Enters a pod of the given type in the current context / namespace.
+# Useful for when you want to exec onto (for example) a "web" pod and you don't care which one.
+# Author: Katrina Verey (github.com/KnVerey)
+
+TYPE=$1;
+CONTAINER=$2
+
+if ! [ "$TYPE" ]; then
+  echo "Please specify pod type";
+  exit 1;
+fi
+
+POD=$(kubectl get pods -o=custom-columns=NAME:.metadata.name | grep -i --max-count=1 "^${TYPE}");
+
+if ! [ "$POD" ]; then
+  echo "No pods of type ${TYPE} found";
+  exit 1;
+fi
+
+if [ "$CONTAINER" ]; then
+  echo "Entering $CONTAINER container of pod $POD"
+  kubectl exec -ti "$POD" -c=$CONTAINER -- sh
+else
+  echo "Entering pod $POD"
+  kubectl exec -ti "$POD" -- sh
+fi
+

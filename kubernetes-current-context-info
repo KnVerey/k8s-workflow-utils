@@ -1,0 +1,9 @@
+#!/bin/bash
+# A "where am I?" script. Prints "context/namespace". I use it in my shell prompt.
+
+if which kubectl > /dev/null; then
+  cname=`kubectl config current-context`
+  cmd="kubectl config view -o jsonpath='{.contexts[?(@.name == \"${cname}\")].context.namespace}'"
+  namespace=$(bash -c "${cmd}")
+  echo "${cname}/${namespace}"
+fi

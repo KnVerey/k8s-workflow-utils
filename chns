@@ -1,0 +1,36 @@
+#!/bin/bash
+set -eo pipefail
+
+# Fuzzy matches namespace names in the current context for fast namespace switching
+# E.g. if "my-hackdays-app-3949-production" is the only app with "hackdays" in the current context,
+# `chns hackdays` will switch to it
+# Author: Katrina Verey (github.com/Knverey)
+
+if [ $1 ]; then
+  NAMESPACE=$1
+else
+  name=`basename "$0"`
+  echo "Usage: $name NAMESPACE"
+  exit 1;
+fi
+
+if ! [ "$(kubectl get namespace ${NAMESPACE} 2>/dev/null)" ]; then
+  ALL_NAMESPACES=$(kubectl get namespaces -o=custom-columns=NAME:.metadata.name --no-headers)
+  GUESSES=$(echo "$ALL_NAMESPACES" | grep $NAMESPACE) || true
+  NUM_GUESSES=$(echo "$GUESSES" | wc -w)
+
+  if [ $NUM_GUESSES -eq 1 ]; then
+    NAMESPACE=$GUESSES
+  elif [ $NUM_GUESSES -gt 1 ]; then
+    echo -e "\033[0;35mName '$NAMESPACE' is ambiguous. Matching namespaces:\033[0m"
+    echo "$GUESSES"
+    exit 1;
+  else
+    echo -e "\033[0;31mString '$NAMESPACE' does not match any available namespace.\033[0m"
+    exit 1;
+  fi
+fi
+
+CONTEXT=$(kubectl config current-context)
+kubectl config set-context $CONTEXT --namespace=$NAMESPACE >/dev/null
+echo "Namespace $NAMESPACE set"
