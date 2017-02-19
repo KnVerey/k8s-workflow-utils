@@ -1,0 +1,46 @@
+#!/bin/zsh#!/bin/bash
+set -eo pipefail
+
+# Fuzzy matches available kubernetes context names for fast context switching
+# E.g. if "my-context2" is the only context with "2" in its name, `chctx 2` will switch to it
+# Optional second argument to switch namespace at the same time using chns
+# Author: Katrina Verey (github.com/KnVerey)
+
+# Suggestion: Add the following to your zshrc and install the completions
+# To get fast namespace listing and switching via context names
+#
+# local contexts; contexts=($(kubectl config get-contexts -o name))
+# for context in $contexts; do
+#   alias $context="chctx $context"
+# done
+
+if [ $1 ]; then
+  CONTEXT=$1
+else
+  name=`basename "$0"`
+  echo "Usage: $name CONTEXT [NAMESPACE]"
+  exit 1;
+fi
+
+if ! [ "$(kubectl config get-contexts ${CONTEXT} -o name 2>/dev/null)" ]; then
+  ALL_CONTEXTS=$(kubectl config get-contexts -o name)
+  GUESSES=$(echo "$ALL_CONTEXTS" | grep $CONTEXT) || true
+  NUM_GUESSES=$(echo "$GUESSES" | wc -w)
+
+  if [ $NUM_GUESSES -eq 1 ]; then
+    CONTEXT=$GUESSES
+  elif [ $NUM_GUESSES -gt 1 ]; then
+    echo -e "\033[0;35mName '$CONTEXT' is ambiguous. Matching contexts:\033[0m"
+    echo "$GUESSES"
+    exit 1;
+  else
+    echo -e "\033[0;31mString '$CONTEXT' does not match any available context.\033[0m"
+    exit 1;
+  fi
+fi
+
+kubectl config use-context $CONTEXT
+
+if [ $2 ]; then
+  chns $2
+fi
