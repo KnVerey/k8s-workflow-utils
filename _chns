@@ -1,0 +1,19 @@
+#compdef chns
+
+# Zsh completions for chns
+# Put this somewhere in your fpath
+# Author: Katrina Verey (github.com/KnVerey)
+
+_chns() {
+  _arguments -C \
+    '1:namespace:->namespace_list'
+
+  local ret; ret=1;
+
+  local namespaces; namespaces=($(kubectl get namespaces -o=custom-columns=NAME:.metadata.name --no-headers))
+  _describe -t namespaces 'namespace' namespaces && ret=0
+
+  return ret;
+}
+
+_chns

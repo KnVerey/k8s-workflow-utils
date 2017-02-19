@@ -1,0 +1,28 @@
+#compdef chctx
+
+# Zsh completions for chctx
+# Put this somewhere in your fpath
+# Author: Katrina Verey (github.com/KnVerey)
+
+_chctx() {
+  _arguments -C \
+    '1:context:->ctxs' \
+    '2:namespace:->namespace_list' \
+
+  local ret; ret=1;
+
+  case "$state" in
+    (ctxs)
+      local contexts; contexts=($(kubectl config get-contexts -o name))
+      _describe -t contexts 'namespace' contexts && ret=0
+      ;;
+    (namespace_list)
+      local namespaces; namespaces=($(kubectl get namespaces -o=custom-columns=NAME:.metadata.name --no-headers --context=$line[1]))
+      _describe -t namespaces 'namespace' namespaces && ret=0
+      ;;
+  esac
+
+  return ret;
+}
+
+_chctx
