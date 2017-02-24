@@ -25,3 +25,17 @@ Zsh completions available. NAMESPACE feature uses chns.
 Chooses a pod whose name starts with POD_TYPE and executes `kubectl exec -ti "$POD" -c=$CONTAINER -- sh`.
 
 E.g. `exec-pod web` to enter a pod in the "web" deployment
+
+## kubernetes-context zsh theme
+
+Looks like this:
+
+![screenshot](https://screenshot.click/2017-02-24--013653_2zftm-fkq7d.png)
+
+Or in a git repo:
+
+![screenshot](https://screenshot.click/2017-02-24--013809_0gtwc-gni14.png)
+
+Or if the last command failed:
+
+![screenshot](https://screenshot.click/2017-02-24--013720_imygq-2x81b.png)
