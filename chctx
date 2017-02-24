@@ -8,11 +8,14 @@ set -eo pipefail
 
 # Suggestion: Add the following to your zshrc and install the completions
 # To get fast namespace listing and switching via context names
+# Warning: Think through your context names first. E.g. if you're using minikube, you'll need to exclude or unalias it
+# or else you'll have a conflict with the executable
 #
 # local contexts; contexts=($(kubectl config get-contexts -o name))
 # for context in $contexts; do
 #   alias $context="chctx $context"
 # done
+#
 
 if [ $1 ]; then
   CONTEXT=$1

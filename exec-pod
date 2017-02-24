@@ -2,14 +2,16 @@
 set -eo pipefail
 
 # Enters a pod of the given type in the current context / namespace.
-# Useful for when you want to exec onto (for example) a "web" pod and you don't care which one.
+# Useful for when you want to exec onto (for example) a pod belonging to the "web" deployment
+# and you don't care which one.
 # Author: Katrina Verey (github.com/KnVerey)
 
 TYPE=$1;
 CONTAINER=$2
 
 if ! [ "$TYPE" ]; then
-  echo "Please specify pod type";
+  name=`basename "$0"`
+  echo "Usage: $name POD_TYPE [CONTAINER]";
   exit 1;
 fi
 
