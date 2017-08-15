@@ -30,12 +30,12 @@ E.g. `exec-pod web` to enter a pod in the "web" deployment
 
 Looks like this:
 
-![screenshot](https://screenshot.click/2017-02-24--013653_2zftm-fkq7d.png)
+![screenshot](https://screenshot.click/2017-08-15--154209_kt05f-ceby8.png)
 
 Or in a git repo:
 
-![screenshot](https://screenshot.click/2017-02-24--013809_0gtwc-gni14.png)
+![screenshot](https://screenshot.click/2017-08-15--154332_c3axe-kbjv0.png)
 
 Or if the last command failed:
 
-![screenshot](https://screenshot.click/2017-02-24--013720_imygq-2x81b.png)
+![screenshot](https://screenshot.click/2017-08-15--154115_3h9bc-vcnsp.png)
