@@ -1,0 +1,16 @@
+#!/bin/bash
+set -o pipefail
+
+# Returns information about any pods that have containers that have been OOMKilled
+# Runs against the current context/namespace by default
+# Any args passed to the script  (e.g. namespace, context flags) will be passed to the kubectl command
+
+echo "NAMESPACE  /  NAME  /  CONTAINERS  /  LAST TERMINATION REASON  /  LAST TERMINATION TIME"
+
+kubectl get pods "$@" --output=jsonpath='{ range .items[*] }{.metadata.namespace}    {.metadata.name}    {.status.containerStatuses[*].name}    {.status.containerStatuses[*].lastState.terminated.reason }    {.status.containerStatuses[*].lastState.terminated.finishedAt}{"\n"}{end}' | grep OOMKilled
+
+if [[ $? -ne 0 ]]; then
+	echo "None"
+fi
+
+exit 0

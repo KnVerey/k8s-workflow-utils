@@ -26,6 +26,20 @@ Chooses a pod whose name starts with POD_TYPE and executes `kubectl exec -ti "$P
 
 E.g. `exec-pod web` to enter a pod in the "web" deployment
 
+## kgoom (kubectl get oom)
+
+`Usage: kgoom [ARGS]`
+
+Returns information about any pods that have containers that have been OOMKilled.
+Any args passed to the script (e.g. namespace, context flags) will be passed to the kubectl command.
+
+Example:
+
+```
+NAMESPACE  /  NAME  /  CONTAINERS  /  LAST TERMINATION REASON  /  LAST TERMINATION TIME
+my-app        web      nginx          OOMKilled                   2017-11-24T09:12:38Z
+```
+
 ## kubernetes-context zsh theme
 
 Looks like this:
