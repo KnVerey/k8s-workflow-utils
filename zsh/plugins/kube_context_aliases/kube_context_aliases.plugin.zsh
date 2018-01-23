@@ -13,7 +13,7 @@ function _build_kube_context_aliases() {
   fi
 
   if which kubectl > /dev/null; then
-    contexts=($(kubectl config get-contexts -o name --kubeconfig=$MASTER_PROD_KUBECONFIG))
+    contexts=($(kubectl config get-contexts -o name --kubeconfig="${MASTER_PROD_KUBECONFIG}"))
     for context in $contexts; do
       alias $context="kubectl config use-context $context"
     done

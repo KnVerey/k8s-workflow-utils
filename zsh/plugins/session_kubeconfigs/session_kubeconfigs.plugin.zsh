@@ -12,18 +12,18 @@ MASTER_LOCAL_KUBECONFIG="${MASTER_LOCAL_KUBECONFIG:-$HOME/.kube/localConfig}"
 DEFAULT_KUBECONFIG_TYPE="${DEFAULT_KUBECONFIG_TYPE:-prod}"
 
 function _build_temp_kubeconfigs() {
-  session_id=$(echo $TERM_SESSION_ID | sed 's/://g')
+  session_id=${TERM_SESSION_ID//:/}
   mkdir -p "$TMPDIR$session_id/.kube"
 
   if [[ -s $MASTER_PROD_KUBECONFIG ]]; then
     export PROD_KUBECONFIG="$TMPDIR$session_id/.kube/prodKubeConfig"
-    cp $MASTER_PROD_KUBECONFIG $PROD_KUBECONFIG
+    cp "${MASTER_PROD_KUBECONFIG}" "${PROD_KUBECONFIG}"
     alias kprod="export KUBECONFIG=$PROD_KUBECONFIG"
   fi
 
   if [[ -s $MASTER_LOCAL_KUBECONFIG ]]; then
     export LOCAL_KUBECONFIG="$TMPDIR$session_id/.kube/localConfig"
-    cp $MASTER_LOCAL_KUBECONFIG $LOCAL_KUBECONFIG
+    cp "${MASTER_LOCAL_KUBECONFIG}" "${LOCAL_KUBECONFIG}"
     alias kloc="export KUBECONFIG=$LOCAL_KUBECONFIG"
   fi
 }
