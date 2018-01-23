@@ -53,3 +53,22 @@ Or in a git repo:
 Or if the last command failed:
 
 ![screenshot](https://screenshot.click/2017-08-15--154115_3h9bc-vcnsp.png)
+
+## kube_context_aliases zsh plugin
+
+Creates aliases named after your kube contexts that switch to the context in question. The alias for minikube is `minik` to avoid conflict with the minikube binary.
+
+> WARNING: Think about what your context names might conflict with before using this!
+
+Example: Given a kubeconfig containing context "fave", this plugin will alias `fave` to `kubectl config use-context fave`.
+
+## session_kubeconfigs zsh plugin
+
+Makes session-specific copies your kubeconfig(s) and creates aliases that manipulate `$KUBECONFIG` to switch between them:
+- `kprod`: switches to the session-specific copy of `$MASTER_PROD_KUBECONFIG` (`$HOME/.kube/config` by default)
+- `kloc`: switches to the session-specific copy of `$MASTER_LOCAL_KUBECONFIG` (`$HOME/.kube/localConfig` by default)
+- `kmaster`: switches to your master kubeconfig(s)
+
+This way, if you switch contexts in one window, your zsh prompt in another window won't by lying about its current context. In other words, it makes the "where am I" aspect of the zsh theme more dependable.
+
+Your sessions will start with the session-specific copy of the config of type `$DEFAULT_KUBECONFIG_TYPE` (`prod` by default)
