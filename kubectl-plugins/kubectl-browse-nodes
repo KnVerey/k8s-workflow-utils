@@ -1,0 +1,8 @@
+#!/bin/bash
+set -o pipefail
+
+# Opens a full-height fzf finder listing nodes
+# Large preview window displays the `describe` output for the selected node
+# Actioning a node opens the full yaml output for the node using bat
+
+kubectl get nodes "$@" -o=custom-columns=NAME:.metadata.name --no-headers | fzf --preview "kubectl describe node {} $* | bat --color always -l yaml" --height=100% --preview-window=right:60% --layout=default --bind="enter:execute(kubectl get node {} -o yaml $* | bat --color always -l yaml)+abort"

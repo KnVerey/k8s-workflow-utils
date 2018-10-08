@@ -1,0 +1,38 @@
+#!/bin/bash
+set -o pipefail
+
+# Enters a pod of the given type in the current context / namespace.
+# Useful for when you want to exec onto (for example) a pod belonging to the "web" deployment
+# and you don't care which one.
+# Author: Katrina Verey (github.com/KnVerey)
+
+TYPE=$1;
+CONTAINER=$2
+
+if ! [ "$TYPE" ]; then
+  name=$(basename "$0")
+  echo "Usage: $name POD_TYPE [CONTAINER]";
+  exit 1;
+fi
+
+POD=$(kubectl get pods -o=custom-columns=NAME:.metadata.name | grep -i --max-count=1 "^${TYPE}");
+
+if [ -z "$POD" ]; then
+  echo "No pods of type ${TYPE} found";
+  exit 1;
+fi
+
+if [[ -z "$CONTAINER" ]]; then
+  CONTAINERS=$(kubectl get pod "$POD" -ojsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}' --no-headers)
+  if [[ $(echo "$CONTAINERS" | wc -l) -eq 1  ]]; then
+    CONTAINER=$CONTAINERS
+  else
+    CONTAINER=$(echo "$CONTAINERS" | fzf --prompt "choose container > " --layout=default --height=10%)
+  fi
+fi
+
+if [ "$CONTAINER" ]; then
+  printf "Entering pod \\033[0;32m%s\\033[0m container \\033[0;32m%s\\033[0m\\n" "$POD" "$CONTAINER"
+  kubectl exec -ti "$POD" -c="$CONTAINER" -- bin/sh -c "if test -x /bin/bash; then exec /bin/bash; else exec /bin/sh; fi"
+fi
+

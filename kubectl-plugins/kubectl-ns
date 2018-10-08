@@ -1,0 +1,19 @@
+#!/bin/bash
+set -o pipefail
+
+# Kubernetes namespace switcher
+# Without an argument, opens an fzf finder listing all namespaces in the current context
+# With an arg, uses chns to fuzzy match it and attempt immediate switch
+
+if [ "$1" ]; then
+  chns "$1"
+  exit
+fi
+
+CURRENT_CONTEXT=$(kubectl config current-context)
+NEW_NS=$(kubectl get namespaces -o name | ggrep -oP "(?<=/).+$" | fzf --height 40% --prompt "k8s namespace > ")
+
+if [ "${NEW_NS}" ]; then
+  kubectl config set-context "${CURRENT_CONTEXT}" --namespace="${NEW_NS}" >/dev/null || echo "Failed to set new namespace"
+  echo "Using ${CURRENT_CONTEXT}/${NEW_NS}"
+fi

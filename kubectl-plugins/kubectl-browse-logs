@@ -1,0 +1,22 @@
+#!/bin/bash
+set -o pipefail
+
+# Opens a full-height fzf finder listing running pods/containers
+# Large preview window displays logs for selected pod/container
+# Actioning a pod/container opens its logs in bat for full browsing
+
+PODS=$(kubectl get pods "$@" --field-selector status.phase=Running -o=jsonpath='{ range .items[*] }{.metadata.name} {.spec.containers[*].name}{"\n"}{ end }' --no-headers)
+
+if [[ -z $PODS ]]; then
+  echo "No pods found in this namespace"
+  exit 1
+fi
+
+allContainers=""
+while read -r line; do
+  pod=$(echo "$line" | grep -Eo "^[A-Za-z0-9-]+")
+  newContainers=$(echo "$line" | sed "s/$pod //" | gsed -E "s/([A-Za-z0-9-]+) ?/$pod --container=&\\n/g" | sed "/^$/d")
+  allContainers="$allContainers$newContainers"$'\n'
+done <<< "$PODS"
+
+echo "$allContainers" | fzf --prompt "choose pod/container > " --preview "echo {} | xargs kubectl logs $* --tail=50" --height=100% --preview-window=right:80% --layout=default --bind="enter:execute(echo {} | xargs kubectl logs $* | bat --color always)+abort"

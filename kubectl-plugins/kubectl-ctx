@@ -1,0 +1,18 @@
+#!/bin/bash
+set -o pipefail
+
+# Kubernetes context switcher
+# Without an argument, opens an fzf finder listing all contexts
+# With an arg, uses chctx to fuzzy match it and attempt immediate switch
+# Invokes kubectl-ns namespace switcher after a successful context switch
+
+if [ "$1" ]; then
+  chctx "$1" "$2"
+  exit
+fi
+
+NEW_CTX=$(kubectl config get-contexts -o=name | fzf --height 40% --prompt "k8s context > ")
+
+if [ "${NEW_CTX}" ]; then
+  kubectl config use-context "${NEW_CTX}" >/dev/null && kubectl ns
+fi

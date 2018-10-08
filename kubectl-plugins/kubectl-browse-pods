@@ -1,0 +1,38 @@
+#!/bin/bash
+set -o pipefail
+
+# Opens a full-height fzf finder listing running pods
+# Large preview window displays the `describe` output for the selected pod
+# Actioning a pod row execs into the pod immediately if it has one container
+# Or prompts you to select a container if there are multiple.
+# Attempts to enter the container using bin/sh and upgrade to bash if available
+
+PODS=$(kubectl get pods "$@" --field-selector status.phase=Running -o=custom-columns=NAME:.metadata.name --no-headers)
+
+if [[ -z $PODS ]]; then
+  echo "No pods found in this namespace"
+  exit 1
+fi
+
+POD=$(echo "$PODS" | fzf --prompt "choose pod > " --preview "kubectl describe pod {} $* | bat --color=always -l yaml" --height=100% --preview-window=right:70% --layout=default)
+
+if ! [ "$POD" ]; then
+  echo "No pod selected";
+  exit 1;
+fi
+
+CONTAINERS=$(kubectl get pod "$POD" "$@" -ojsonpath='{range .spec.containers[*]}{.name}{"\n"}{end}' --no-headers)
+if [[ $(echo "$CONTAINERS" | wc -l) -eq 1  ]]; then
+  CONTAINER=$CONTAINERS
+else
+  CONTAINER=$(echo "$CONTAINERS" | fzf --prompt "choose container > " --layout=default --height=10%)
+fi
+
+if ! [ "$CONTAINER" ]; then
+  echo "No container selected";
+  exit 1;
+fi
+
+printf "Entering pod \\033[0;32m%s\\033[0m container \\033[0;32m%s\\033[0m\\n" "$POD" "$CONTAINER"
+
+kubectl exec -ti "$POD" "$@" --container="$CONTAINER" -- bin/sh -c "if test -x /bin/bash; then exec /bin/bash; else exec /bin/sh; fi"
