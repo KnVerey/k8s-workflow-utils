@@ -53,3 +53,11 @@ Or in a git repo:
 Or if the last command failed:
 
 ![screenshot](https://screenshot.click/2017-08-15--154115_3h9bc-vcnsp.png)
+
+## kube_context_aliases zsh plugin
+
+Creates aliases named after your kube contexts that switch to the context in question. The alias for minikube is `minik` to avoid conflict with the minikube binary.
+
+> WARNING: Think about what your context names might conflict with before using this!
+
+Example: Given a kubeconfig containing context "fave", this plugin will alias `fave` to `kubectl config use-context fave`.

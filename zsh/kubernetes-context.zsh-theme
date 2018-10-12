@@ -4,15 +4,27 @@
 # ༶                                                                                        ⎈  minikube/test-namespace
 
 # kubernetes-current-context-info: Prints "context/namespace"
-function kubernetes-current-context-info() {
+function _load_current_context_info() {
   if which kubectl > /dev/null; then
-    cname=`kubectl config current-context`
-    args="--output=jsonpath={.contexts[?(@.name == \"${cname}\")].context.namespace}"
-    namespace=$(kubectl config view "${args}")
-    if [ -z $namespace ]; then
-      namespace="default"
+    K8S_ZSH_THEME_CURRENT_CONTEXT=$(kubectl config current-context)
+    if [[ -z "${K8S_ZSH_THEME_CURRENT_CONTEXT}" ]]; then
+      echo "kubectl context is not set"
+      return 1
     fi
-    echo "${cname}/${namespace}"
+
+    K8S_ZSH_THEME_CURRENT_NAMESPACE=$(kubectl config view --minify --output=jsonpath='{..namespace}')
+    K8S_ZSH_THEME_CURRENT_NAMESPACE="${K8S_ZSH_THEME_CURRENT_NAMESPACE:-default}"
+    local local_contexts=(minikube docker-for-desktop dind)
+    if [[ "${local_contexts[@]}" =~ "${K8S_ZSH_THEME_CURRENT_CONTEXT}" ]]; then
+      iconColor=$fg[cyan]
+    else
+      iconColor=$fg[yellow]
+    fi
+    K8S_ZSH_THEME_KUBE_ICON="%{$iconColor%}⎈ %{$reset_color%}"
+    echo "${K8S_ZSH_THEME_KUBE_ICON} %{$fg[cyan]%}${K8S_ZSH_THEME_CURRENT_CONTEXT}/${K8S_ZSH_THEME_CURRENT_NAMESPACE}%{$reset_color%}"
+  else
+    echo "kubectl binary not found"
+    return 1
   fi
 }
 
@@ -28,4 +40,4 @@ PROMPT='
 %(?.༶.%{$fg_bold[red]%}‽%{$reset_color%}) '
 
 # Right prompt with :boom: when last command failed and kube info
-RPROMPT='%{$fg[yellow]%}⎈ %{$reset_color%}%{$fg[cyan]%} $(kubernetes-current-context-info)%{$reset_color%}'
+RPROMPT='$(_load_current_context_info)'
